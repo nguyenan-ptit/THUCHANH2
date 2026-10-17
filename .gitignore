@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 erl_crash.dump
 .idea/
+/logs/
+*.log

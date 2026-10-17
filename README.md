@@ -127,11 +127,11 @@ Thay `warning` bằng `info` hoặc `critical` để gửi mức tương ứng. 
 
 ## 4. Kết quả đạt được
 
-Các kết quả tích hợp được ghi nhận trong báo cáo và log RabbitMQ ngày **17/10/2026**, với Python **3.14.0** và `pika` **1.4.4**. Các khối terminal dưới đây trình bày lại dữ liệu đã ghi nhận theo định dạng in của mã nguồn; đây không phải phiên chạy mới. Thời gian và giá trị ngẫu nhiên sẽ thay đổi khi chạy lại.
+Các kết quả tích hợp dưới đây được ghi nhận ngày **17/10/2026**, với Python **3.14.0** và `pika` **1.4.4**. Các khối terminal trình bày lại dữ liệu đã ghi nhận theo định dạng in của mã nguồn để tham khảo; đây không phải phiên chạy mới. Thời gian và giá trị ngẫu nhiên sẽ thay đổi khi chạy lại. Log chỉ lưu cục bộ và không được Git theo dõi; bản clone mới không kèm các file log của lần chạy này.
 
 ### Bài 2 — Đầu ra ở Terminal 3 (Producer)
 
-Đã gửi/nhận thành công 5 message ngẫu nhiên. Dưới đây là phần trích hai message trong báo cáo đã lưu:
+Đã gửi/nhận thành công 5 message ngẫu nhiên. Dưới đây là phần trích hai message từ lần chạy đã ghi nhận:
 
 ```text
 PS D:\TH> .\.venv\Scripts\python.exe -u sensor_producer_bai2.py
@@ -186,7 +186,7 @@ PS D:\TH> .\.venv\Scripts\python.exe -u alert_producer_bai3.py
 PS D:\TH>
 ```
 
-Các đầu ra consumer dưới đây được dựng lại từ log của lần gửi ba cảnh báo mẫu lúc **14:54:34 ngày 17/10/2026**.
+Các đầu ra consumer dưới đây được dựng lại từ log cục bộ của lần gửi ba cảnh báo mẫu lúc **14:54:34 ngày 17/10/2026**. Các trích đoạn được giữ trong README để tham khảo sau khi bỏ log khỏi Git.
 
 ### Bài 3 — Đầu ra ở Terminal 2 (Warning Consumer)
 
@@ -219,4 +219,16 @@ PS D:\TH> .\.venv\Scripts\python.exe -u all_alert_consumer_bai3.py
 
 Lần chạy này ghi nhận Warning Consumer nhận **1** message, Critical Consumer nhận **1** message, All Alert Consumer nhận **3** message. Bản `info` trên direct exchange không tới hai queue warning/critical.
 
+Số lượng trên tính cho message mới của một lần chạy; khi đối chiếu, dùng thời gian của lần chạy hiện tại và chỉ mở một consumer cho mỗi queue vì queue/log cục bộ có thể còn dữ liệu cũ.
 
+## 5. Log cục bộ
+
+Các consumer Bài 3 tự tạo thư mục `logs/` và file log tương ứng khi nhận message đầu tiên. Khi chạy từ thư mục dự án theo hướng dẫn trên, log được lưu tại:
+
+- Warning Consumer: `logs/warning_queue.log`.
+- Critical Consumer: `logs/critical_queue.log`.
+- All Alert Consumer (tùy chọn): `logs/all_alert_queue.log`.
+
+Log được ghi nối tiếp qua các lần chạy. Bài 2 và producer Bài 3 chỉ hiển thị đầu ra trên terminal, không tự tạo file log.
+
+Thư mục `logs/` và các file `*.log` được bỏ qua trong `.gitignore`. Không cần tạo sẵn hoặc tải log để chạy chương trình; mỗi máy sẽ tự sinh log khi consumer nhận dữ liệu.
