@@ -219,4 +219,4 @@ PS D:\TH> .\.venv\Scripts\python.exe -u all_alert_consumer_bai3.py
 
 Lần chạy này ghi nhận Warning Consumer nhận **1** message, Critical Consumer nhận **1** message, All Alert Consumer nhận **3** message. Bản `info` trên direct exchange không tới hai queue warning/critical.
 
-Các log được lưu tại `logs/warning_queue.log`, `logs/critical_queue.log` và `logs/all_alert_queue.log`. Số lượng trên tính cho message mới của một lần chạy; khi đối chiếu, dùng thời gian của lần chạy hiện tại và chỉ mở một consumer cho mỗi queue vì queue/log có thể còn dữ liệu cũ.
+
