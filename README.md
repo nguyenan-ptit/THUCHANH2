@@ -18,6 +18,18 @@
 - Thư viện `pika`.
 - RabbitMQ đã cài đặt và đang chạy trên máy.
 
+### Đường dẫn thư mục dự án
+
+**`D:\TH1` trong các lệnh bên dưới chỉ là đường dẫn ví dụ**, không phải vị trí bắt buộc. Bạn có thể lưu dự án ở ổ đĩa hoặc thư mục khác. Trong **mỗi terminal**, hãy thay `D:\TH1` trong lệnh `Set-Location` bằng đường dẫn thực tế đến thư mục chứa `README.md`, `requirements.txt` và các file Python.
+
+Ví dụ, nếu lưu dự án tại `E:\Hoc tap\TH1`, dùng:
+
+```powershell
+Set-Location "E:\Hoc tap\TH1"
+```
+
+Đặt đường dẫn trong dấu ngoặc kép nếu có khoảng trắng. Sau khi vào đúng thư mục dự án, giữ nguyên các lệnh dùng đường dẫn tương đối như `.\.venv\Scripts\python.exe` và `.\start_rabbitmq.ps1`.
+
 ### Cài đặt thư viện
 
 Các lệnh chạy chương trình bên dưới sử dụng `.venv`. Tạo môi trường và cài `pika` từ `requirements.txt` theo phần **Chuẩn bị môi trường** ở mục 3.
@@ -37,7 +49,7 @@ Lệnh `rabbitmq-service.bat start` chỉ dùng khi đã cài RabbitMQ dưới d
 
 ## 3. Cách chạy từng chương trình
 
-Mỗi terminal là một cửa sổ hoặc tab **PowerShell riêng**. Mọi terminal đều làm việc tại `D:\TH1` và dùng cùng Python trong `.venv`. Chạy lần lượt từng bài; trước khi chuyển bài, dừng consumer và producer còn chạy bằng Ctrl+C, đồng thời giữ Terminal 1 chạy broker.
+Mỗi terminal là một cửa sổ hoặc tab **PowerShell riêng**. Mọi terminal đều làm việc tại **thư mục dự án thực tế của bạn** (`D:\TH1` chỉ là ví dụ) và dùng cùng Python trong `.venv`. Chạy lần lượt từng bài; trước khi chuyển bài, dừng consumer và producer còn chạy bằng Ctrl+C, đồng thời giữ Terminal 1 chạy broker.
 
 ### Chuẩn bị môi trường — thực hiện một lần tại Terminal 2
 
@@ -179,7 +191,7 @@ Thoi gian nhan: 19:10:35
 
 Sau khi kiểm tra, đã dừng consumer bằng Ctrl+C và nhận thông báo `Da dung consumer.`; RabbitMQ vẫn chạy.
 
-Các trích đoạn Bài 2 và Bài 3 bên dưới giữ đường dẫn `D:\TH` của lần chạy trước. Khi chạy dự án hiện tại, dùng `D:\TH1` theo mục 3.
+Các trích đoạn Bài 2 và Bài 3 bên dưới giữ đường dẫn `D:\TH` của lần chạy trước. Các đường dẫn trong phần kết quả chỉ ghi lại vị trí trên máy thực hành; khi chạy trên máy của bạn, dùng thư mục dự án thực tế theo mục 3.
 
 ### Bài 2 — Đầu ra ở Terminal 3 (Producer)
 
