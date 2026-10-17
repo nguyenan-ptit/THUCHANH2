@@ -57,6 +57,23 @@ python -m venv .venv
 
 Nếu đã có `.venv`, bỏ qua lệnh tạo môi trường. Với cấu hình RabbitMQ 4.3.6 đã dùng cho Bài 2, `%USERPROFILE%\rabbitmq\data\rabbitmq.conf` có dòng `deprecated_features.permit.transient_nonexcl_queues = true` để cho phép queue mặc định của bài.
 
+### Bài 1 - Gửi và nhận message cơ bản qua queue
+Cách chạy:
+Terminal 2 — Chạy Consumer trước (chạy liên tục, dừng bằng Ctrl+C)
+
+bash
+python -u consumer_bai1.py
+
+Chờ dòng Dang lang nghe queue 'iot_lab_queue'... Nhan Ctrl+C de dung. rồi mở terminal tiếp theo.
+
+Terminal 3 — Chạy Producer
+
+bash
+python -u producer_bai1.py        # để gửi 1 message
+python -u producer_bai1.py 5      # để gửi 5 message liên tiếp
+
+Producer gửi message vào queue iot_lab_queue rồi kết thúc. Consumer ở Terminal 2 hiển thị nội dung và thời điểm nhận.
+
 ### Bài 2 — Mô phỏng cảm biến IoT
 
 Giữ **Terminal 1** chạy broker. Dùng **Terminal 2** cho consumer và **Terminal 3** cho producer.

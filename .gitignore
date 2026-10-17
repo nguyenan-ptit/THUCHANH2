@@ -4,3 +4,4 @@ erl_crash.dump
 .idea/
 /logs/
 *.log
+.DS_Store
