@@ -1,4 +1,4 @@
-# Thực hành Python AMQP — Bài 2 và Bài 3
+# Thực hành Python AMQP — Bài 1, Bài 2 và Bài 3
 
 ## 1. Thông Tin Chung
 
@@ -20,59 +20,66 @@
 
 ### Cài đặt thư viện
 
-Trong môi trường Python muốn sử dụng, chạy:
-
-```powershell
-pip install pika
-```
-
-Các lệnh chạy chương trình bên dưới sử dụng `.venv`; cách tạo và cài thư viện vào môi trường này được trình bày ở mục **Chuẩn bị**.
+Các lệnh chạy chương trình bên dưới sử dụng `.venv`. Tạo môi trường và cài `pika` từ `requirements.txt` theo phần **Chuẩn bị môi trường** ở mục 3.
 
 ### Terminal 1 — Khởi động RabbitMQ (nếu chưa chạy)
 
 Trên máy thực hành, RabbitMQ được giải nén từ bản ZIP. Mở một terminal riêng tại thư mục dự án và chạy script khởi động có sẵn:
 
 ```powershell
-Set-Location D:\TH
+Set-Location D:\TH1
 powershell -ExecutionPolicy Bypass -File .\start_rabbitmq.ps1
 ```
 
-Script thiết lập đường dẫn Erlang và khởi động RabbitMQ đã có trên máy. Giữ **Terminal 1** mở trong suốt quá trình chạy cả hai bài, chờ `Starting broker... completed` rồi tiếp tục. Nếu broker đã chạy thì bỏ qua bước khởi động.
+Script thiết lập đường dẫn Erlang và khởi động RabbitMQ đã có trên máy. Giữ **Terminal 1** mở trong suốt quá trình thực hành các bài, chờ `Starting broker... completed` rồi tiếp tục. Nếu broker đã chạy thì bỏ qua bước khởi động.
 
 Lệnh `rabbitmq-service.bat start` chỉ dùng khi đã cài RabbitMQ dưới dạng Windows Service và thư mục `sbin` có trong PATH, hoặc khi gọi bằng đường dẫn đầy đủ. Xem [hướng dẫn Windows của RabbitMQ](https://www.rabbitmq.com/docs/install-windows-manual).
 
 ## 3. Cách chạy từng chương trình
 
-Mỗi terminal là một cửa sổ hoặc tab **PowerShell riêng**. Mọi terminal đều làm việc tại `D:\TH` và dùng cùng Python trong `.venv`. Chạy lần lượt từng bài; khi chuyển từ Bài 2 sang Bài 3, dừng các chương trình Bài 2 bằng Ctrl+C và giữ Terminal 1 chạy broker.
+Mỗi terminal là một cửa sổ hoặc tab **PowerShell riêng**. Mọi terminal đều làm việc tại `D:\TH1` và dùng cùng Python trong `.venv`. Chạy lần lượt từng bài; trước khi chuyển bài, dừng consumer và producer còn chạy bằng Ctrl+C, đồng thời giữ Terminal 1 chạy broker.
 
 ### Chuẩn bị môi trường — thực hiện một lần tại Terminal 2
 
 Tạo `.venv` nếu chưa có, rồi cài thư viện:
 
 ```powershell
-Set-Location D:\TH
-python -m venv .venv
+Set-Location D:\TH1
+py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Nếu đã có `.venv`, bỏ qua lệnh tạo môi trường. Với cấu hình RabbitMQ 4.3.6 đã dùng cho Bài 2, `%USERPROFILE%\rabbitmq\data\rabbitmq.conf` có dòng `deprecated_features.permit.transient_nonexcl_queues = true` để cho phép queue mặc định của bài.
+Nếu đã có `.venv`, bỏ qua lệnh tạo môi trường. Máy thực hành có Python Launcher `py`; lệnh `python` chưa có trong PATH, nên dùng `py` để tạo môi trường và gọi trực tiếp `.\.venv\Scripts\python.exe` để chạy. Với cấu hình RabbitMQ 4.3.6 đã dùng cho Bài 2, `%USERPROFILE%\rabbitmq\data\rabbitmq.conf` có dòng `deprecated_features.permit.transient_nonexcl_queues = true` để cho phép queue mặc định của bài.
 
-### Bài 1 - Gửi và nhận message cơ bản qua queue
-Cách chạy:
-Terminal 2 — Chạy Consumer trước (chạy liên tục, dừng bằng Ctrl+C)
+### Bài 1 — Gửi và nhận message cơ bản qua queue
 
-bash
-python -u consumer_bai1.py
+Giữ **Terminal 1** chạy broker. Chỉ mở một consumer cho queue `iot_lab_queue` để nhận đủ message tại Terminal 2.
 
-Chờ dòng Dang lang nghe queue 'iot_lab_queue'... Nhan Ctrl+C de dung. rồi mở terminal tiếp theo.
+**Terminal 2 — Chạy Consumer trước**
 
-Terminal 3 — Chạy Producer
+```powershell
+Set-Location D:\TH1
+.\.venv\Scripts\python.exe -u consumer_bai1.py
+```
 
-bash
-python -u producer_bai1.py        # để gửi 1 message
-python -u producer_bai1.py 5      # để gửi 5 message liên tiếp
+Chờ dòng `Dang lang nghe queue 'iot_lab_queue'... Nhan Ctrl+C de dung.` rồi mở terminal tiếp theo.
 
-Producer gửi message vào queue iot_lab_queue rồi kết thúc. Consumer ở Terminal 2 hiển thị nội dung và thời điểm nhận.
+**Terminal 3 — Chạy Producer**
+
+Gửi 5 message liên tiếp:
+
+```powershell
+Set-Location D:\TH1
+.\.venv\Scripts\python.exe -u producer_bai1.py 5
+```
+
+Muốn gửi 1 message, bỏ đối số `5`:
+
+```powershell
+.\.venv\Scripts\python.exe -u producer_bai1.py
+```
+
+Producer gửi message vào queue `iot_lab_queue` rồi kết thúc. Consumer ở Terminal 2 hiển thị nội dung và thời điểm nhận, sau đó xác nhận đã nhận message (ACK). Nhấn **Ctrl+C** tại Terminal 2 để dừng consumer sau khi thực hành.
 
 ### Bài 2 — Mô phỏng cảm biến IoT
 
@@ -81,7 +88,7 @@ Giữ **Terminal 1** chạy broker. Dùng **Terminal 2** cho consumer và **Term
 **Terminal 2 — Chạy Monitoring Consumer trước**
 
 ```powershell
-Set-Location D:\TH
+Set-Location D:\TH1
 .\.venv\Scripts\python.exe -u monitor_consumer_bai2.py
 ```
 
@@ -90,7 +97,7 @@ Chờ dòng `Monitoring consumer dang lang nghe. Nhan Ctrl+C de dung.` rồi m�
 **Terminal 3 — Chạy Sensor Producer**
 
 ```powershell
-Set-Location D:\TH
+Set-Location D:\TH1
 .\.venv\Scripts\python.exe -u sensor_producer_bai2.py
 ```
 
@@ -103,7 +110,7 @@ Giữ **Terminal 1** chạy broker. Mở riêng các terminal dưới đây theo
 **Terminal 2 — Chạy Warning Consumer**
 
 ```powershell
-Set-Location D:\TH
+Set-Location D:\TH1
 .\.venv\Scripts\python.exe -u warning_consumer_bai3.py
 ```
 
@@ -112,7 +119,7 @@ Chờ thông báo `warning_queue dang lang nghe`.
 **Terminal 3 — Chạy Critical Consumer**
 
 ```powershell
-Set-Location D:\TH
+Set-Location D:\TH1
 .\.venv\Scripts\python.exe -u critical_consumer_bai3.py
 ```
 
@@ -121,7 +128,7 @@ Chờ thông báo `critical_queue dang lang nghe`.
 **Terminal 4 — Chạy All Alert Consumer (tùy chọn)**
 
 ```powershell
-Set-Location D:\TH
+Set-Location D:\TH1
 .\.venv\Scripts\python.exe -u all_alert_consumer_bai3.py
 ```
 
@@ -130,7 +137,7 @@ Chờ thông báo `all_alert_queue dang lang nghe`. Consumer này nhận đủ b
 **Terminal 5 — Chạy Alert Producer sau khi các consumer đã sẵn sàng**
 
 ```powershell
-Set-Location D:\TH
+Set-Location D:\TH1
 .\.venv\Scripts\python.exe -u alert_producer_bai3.py
 ```
 
@@ -145,6 +152,34 @@ Thay `warning` bằng `info` hoặc `critical` để gửi mức tương ứng. 
 ## 4. Kết quả đạt được
 
 Các kết quả tích hợp dưới đây được ghi nhận ngày **17/10/2026**, với Python **3.14.0** và `pika` **1.4.4**. Các khối terminal trình bày lại dữ liệu đã ghi nhận theo định dạng in của mã nguồn để tham khảo; đây không phải phiên chạy mới. Thời gian và giá trị ngẫu nhiên sẽ thay đổi khi chạy lại. Log chỉ lưu cục bộ và không được Git theo dõi; bản clone mới không kèm các file log của lần chạy này.
+
+### Bài 1 — Gửi và nhận thành công 5 message
+
+Đã chạy consumer trước, sau đó chạy producer với đối số `5` tại `D:\TH1`. Lần kiểm tra này dùng môi trường Python có sẵn tại `D:\TH\.venv`; khi tạo `.venv` trong dự án theo mục 3, dùng các lệnh chạy ở trên.
+
+Lệnh producer đã chạy:
+
+```powershell
+PS D:\TH1> & 'D:\TH\.venv\Scripts\python.exe' -u .\producer_bai1.py 5
+```
+
+Producer gửi đủ 5 message đánh số `#1`–`#5` rồi kết thúc thành công. Consumer nhận đủ 5 message qua queue `iot_lab_queue` từ **19:10:33 đến 19:10:35**. Dưới đây là phần trích message đầu tiên và cuối cùng ở Terminal 2:
+
+```text
+Da nhan message: Xin chao tu ung dung Python AMQP - B23DCCN914 - Dang Ky Vi (message #1)
+Thoi gian nhan: 19:10:33
+--------------------------------------------------
+```
+
+```text
+Da nhan message: Xin chao tu ung dung Python AMQP - B23DCCN914 - Dang Ky Vi (message #5)
+Thoi gian nhan: 19:10:35
+--------------------------------------------------
+```
+
+Sau khi kiểm tra, đã dừng consumer bằng Ctrl+C và nhận thông báo `Da dung consumer.`; RabbitMQ vẫn chạy.
+
+Các trích đoạn Bài 2 và Bài 3 bên dưới giữ đường dẫn `D:\TH` của lần chạy trước. Khi chạy dự án hiện tại, dùng `D:\TH1` theo mục 3.
 
 ### Bài 2 — Đầu ra ở Terminal 3 (Producer)
 
