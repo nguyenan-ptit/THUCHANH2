@@ -1,53 +1,51 @@
 # Thực hành Python AMQP — Bài 2 và Bài 3
 
-**Sinh viên:** Vũ Thành Nguyên — **Mã sinh viên:** B23DCCN617.
+## 1. Thông Tin Chung
 
-Các chương trình và `requirements.txt` được đặt trực tiếp trong thư mục `D:\TH`. Dự án dùng Python 3.x và thư viện `pika`.
-
-## 1. Broker sử dụng
-
-| Thiết lập | Giá trị |
+| Họ và tên | Mã sinh viên |
 | --- | --- |
-| Broker trong các lần chạy đã ghi nhận | RabbitMQ 4.3.6, AMQP 0-9-1, Erlang/OTP 28.5 |
-| Host | `localhost` |
-| Cổng AMQP | `5672` |
-| Virtual host | `/` |
-| Tài khoản cục bộ | `guest` / `guest` |
-| Bài 2 | Queue `sensor_data_queue`, default exchange `""`, routing key `sensor_data_queue` |
-| Bài 3 | Direct exchange `iot_alert_exchange`; `warning_queue` nhận key `warning`, `critical_queue` nhận key `critical` |
-| Bài 3 mở rộng hiện có | Topic exchange `iot_alert_topic_exchange`; `all_alert_queue` nhận key `alert.#` |
+| Nguyễn Văn An | B23DCCN004 |
+| Đặng Kỳ Vĩ | B23DCCN914 |
+| Vũ Thành Nguyên | B23DCCN617 |
 
-RabbitMQ là dịch vụ riêng; cài `pika` không cài RabbitMQ. Nếu broker đã chạy, chuyển sang bước chạy chương trình.
+| Môn học | Broker sử dụng |
+| --- | --- |
+| Internet of Things (IoT) | RabbitMQ (`localhost:5672`) |
 
-Trên máy thực hành, RabbitMQ và Erlang đã được giải nén trong `%USERPROFILE%\rabbitmq`, với hai thư mục `rabbitmq_server-4.3.6` và `otp28`. Mở một terminal tại `D:\TH` để khởi động:
+## 2. Yêu Cầu Môi Trường
+
+- Python 3.x.
+- Thư viện `pika`.
+- RabbitMQ đã cài đặt và đang chạy trên máy.
+
+### Cài đặt thư viện
+
+Trong môi trường Python muốn sử dụng, chạy:
+
+```powershell
+pip install pika
+```
+
+Các lệnh chạy chương trình bên dưới sử dụng `.venv`; cách tạo và cài thư viện vào môi trường này được trình bày ở mục **Chuẩn bị**.
+
+### Khởi động RabbitMQ (nếu chưa chạy)
+
+Trên máy thực hành, RabbitMQ được giải nén từ bản ZIP. Mở một terminal riêng tại thư mục dự án và chạy script khởi động có sẵn:
 
 ```powershell
 Set-Location D:\TH
 powershell -ExecutionPolicy Bypass -File .\start_rabbitmq.ps1
 ```
 
-Script chỉ khởi động broker đã có trên máy. Giữ terminal này mở và chờ dòng `Starting broker... completed` trước khi chạy các chương trình.
+Script thiết lập đường dẫn Erlang và khởi động RabbitMQ đã có trên máy. Giữ terminal này mở, chờ `Starting broker... completed` rồi chạy các chương trình. Nếu broker đã chạy thì bỏ qua bước khởi động.
 
-Theo cấu hình đã ghi nhận, broker trên máy thực hành dùng dòng sau trong `%USERPROFILE%\rabbitmq\data\rabbitmq.conf` để cho phép queue với thuộc tính mặc định của Bài 2:
+Lệnh `rabbitmq-service.bat start` chỉ dùng khi đã cài RabbitMQ dưới dạng Windows Service và thư mục `sbin` có trong PATH, hoặc khi gọi bằng đường dẫn đầy đủ. Xem [hướng dẫn Windows của RabbitMQ](https://www.rabbitmq.com/docs/install-windows-manual).
 
-```ini
-deprecated_features.permit.transient_nonexcl_queues = true
-```
+## 3. Cách chạy từng chương trình
 
-Nếu thay đổi cấu hình broker thì cần khởi động lại dịch vụ. Hai chương trình Bài 2 cùng khai báo `queue_declare(queue="sensor_data_queue")` với thuộc tính mặc định.
+### Chuẩn bị
 
-Nếu dùng broker của lớp:
-
-- **Bài 2:** sửa các hằng số `HOST`, `PORT`, `VIRTUAL_HOST`, `USERNAME`, `PASSWORD` ở đầu cả hai file cho giống nhau.
-- **Bài 3:** đặt các biến môi trường `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_USER`, `RABBITMQ_PASS` trong từng terminal; các script hiện dùng vhost `/`.
-
-Dùng tài khoản được cấp khi kết nối từ xa; không dùng `guest` và không ghi mật khẩu broker dùng chung vào báo cáo.
-
-## 2. Cách chạy từng chương trình
-
-### Chuẩn bị môi trường Python
-
-Mở PowerShell tại thư mục dự án. Nếu chưa có môi trường `.venv`, tạo môi trường rồi cài thư viện:
+Mở PowerShell tại thư mục dự án. Tạo `.venv` nếu chưa có, rồi cài thư viện:
 
 ```powershell
 Set-Location D:\TH
@@ -55,176 +53,57 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Nếu đã có `.venv` dùng được thì bỏ qua lệnh tạo môi trường. Nếu `python` chưa có trong PATH, có thể dùng `py -3 -m venv .venv` khi đã cài Python Launcher. `requirements.txt` chỉ khai báo thư viện ngoài `pika`.
+Với cấu hình RabbitMQ 4.3.6 đã dùng cho Bài 2, `%USERPROFILE%\rabbitmq\data\rabbitmq.conf` có dòng `deprecated_features.permit.transient_nonexcl_queues = true` để cho phép queue mặc định của bài.
+
+Mỗi chương trình bên dưới chạy trong **một terminal riêng**, đều đặt `Set-Location D:\TH`. Chạy consumer trước, chờ thông báo `dang lang nghe`, rồi mới chạy producer.
 
 ### Bài 2 — Mô phỏng cảm biến IoT
 
-Mở hai terminal tại `D:\TH`, chạy consumer trước producer và dùng cùng môi trường Python.
+| Thứ tự | Chương trình | Lệnh chạy |
+| --- | --- | --- |
+| 1 | Monitoring consumer | `.\.venv\Scripts\python.exe monitor_consumer_bai2.py` |
+| 2 | Sensor producer | `.\.venv\Scripts\python.exe sensor_producer_bai2.py` |
 
-**Terminal 1 — `monitor_consumer_bai2.py`:** nhận JSON, in mã thiết bị, nhiệt độ, độ ẩm và cảnh báo.
-
-```powershell
-.\.venv\Scripts\python.exe monitor_consumer_bai2.py
-```
-
-**Terminal 2 — `sensor_producer_bai2.py`:** sinh dữ liệu cảm biến và gửi một message mỗi 3 giây.
-
-```powershell
-.\.venv\Scripts\python.exe sensor_producer_bai2.py
-```
-
-Mỗi message có đúng ba trường `device_id`, `temperature`, `humidity`. `device_id` luôn là `"sensor01"`; nhiệt độ được sinh ngẫu nhiên trong khoảng 20–40, độ ẩm trong khoảng 30–80, làm tròn một chữ số thập phân. Đây là khoảng chọn để thực hành. Producer in payload đã gửi; consumer giải mã UTF-8 và phân tích JSON để in cùng các giá trị.
+Producer gửi JSON mỗi 3 giây và tiếp tục chạy đến khi dừng. Consumer nhận dữ liệu, in mã thiết bị, nhiệt độ, độ ẩm và cảnh báo.
 
 ### Bài 3 — Điều phối cảnh báo IoT
 
-Trước tiên cài thư viện theo mục **Chuẩn bị môi trường Python** ở trên. Dùng PowerShell và Python trong `.venv` cho tất cả lệnh dưới đây.
+| Thứ tự | Chương trình | Lệnh chạy |
+| --- | --- | --- |
+| 1 | Warning consumer | `.\.venv\Scripts\python.exe -u warning_consumer_bai3.py` |
+| 2 | Critical consumer | `.\.venv\Scripts\python.exe -u critical_consumer_bai3.py` |
+| 3 | All alert consumer — tùy chọn | `.\.venv\Scripts\python.exe -u all_alert_consumer_bai3.py` |
+| 4 | Alert producer | `.\.venv\Scripts\python.exe alert_producer_bai3.py` |
 
-Bài 3 cơ bản dùng **4 terminal**: broker, warning consumer, critical consumer và producer. Nếu chạy thêm all alert consumer thì dùng **5 terminal**. Các bước bên dưới có cả phần mở rộng; có thể bỏ qua Terminal 4 khi chỉ chạy bài cơ bản. Nếu broker đã chạy, giữ broker đó và bỏ qua Terminal 1.
-
-**Terminal 1 — Khởi động RabbitMQ trên máy thực hành**
-
-```powershell
-Set-Location D:\TH
-powershell -ExecutionPolicy Bypass -File .\start_rabbitmq.ps1
-```
-
-Giữ terminal này mở. Chờ dòng `Starting broker... completed` rồi tiếp tục. Script yêu cầu RabbitMQ/Erlang đã được chuẩn bị như mục **Broker sử dụng**.
-
-**Terminal 2 — Chạy warning consumer**
+Producer gửi ba cảnh báo mẫu `info`, `warning`, `critical` rồi kết thúc. Các consumer tiếp tục lắng nghe. Có thể gửi thêm một cảnh báo tại terminal producer:
 
 ```powershell
-Set-Location D:\TH
-.\.venv\Scripts\python.exe -u warning_consumer_bai3.py
+.\.venv\Scripts\python.exe alert_producer_bai3.py warning "Nhiet do phong may vuot nguong"
 ```
 
-Chờ dòng thông báo:
+Thay `warning` bằng `info` hoặc `critical` để gửi mức tương ứng. Dừng từng consumer và producer Bài 2 bằng **Ctrl+C**; dừng broker sau khi kết thúc thực hành.
 
-```text
-[*] warning_queue dang lang nghe iot_alert_exchange (routing key='warning'). Nhan Ctrl+C de dung.
-```
+## 4. Kết quả đạt được
 
-Consumer này nhận cảnh báo có routing key `warning`.
+Các kết quả tích hợp dưới đây được ghi nhận trong báo cáo và log chạy RabbitMQ ngày **17/10/2026**, với Python **3.14.0** và `pika` **1.4.4**.
 
-**Terminal 3 — Chạy critical consumer**
+### Bài 2
 
-```powershell
-Set-Location D:\TH
-.\.venv\Scripts\python.exe -u critical_consumer_bai3.py
-```
+- Gửi/nhận thành công **5 message ngẫu nhiên** qua `sensor_data_queue`; consumer hiển thị đúng các giá trị producer gửi.
+- JSON có đúng ba trường: `device_id` cố định là `"sensor01"`, `temperature` và `humidity` là số ngẫu nhiên. Producer nghỉ `sleep(3)` giữa các lần gửi.
+- **7 trường hợp kiểm tra cảnh báo và giá trị biên đều đạt:** nhiệt độ `> 35` in `CANH BAO: Nhiet do cao`; độ ẩm `< 40` in `CANH BAO: Do am thap`. Khi cả hai điều kiện đúng, in cả hai cảnh báo theo thứ tự nhiệt độ rồi độ ẩm; bằng ngưỡng không gây cảnh báo tương ứng.
+- Ctrl+C dừng được cả hai chương trình. Queue sau khi kết thúc có **0 message, 0 consumer**. Hai file đã kiểm tra cú pháp thành công.
 
-Chờ dòng thông báo:
+### Bài 3
 
-```text
-[*] critical_queue dang lang nghe iot_alert_exchange (routing key='critical'). Nhan Ctrl+C de dung.
-```
+Với một lần producer gửi ba cảnh báo mẫu, các consumer nhận đúng:
 
-Consumer này nhận cảnh báo có routing key `critical`.
-
-**Terminal 4 — Chạy all alert consumer (tùy chọn, phần mở rộng)**
-
-```powershell
-Set-Location D:\TH
-.\.venv\Scripts\python.exe -u all_alert_consumer_bai3.py
-```
-
-Chờ dòng thông báo:
-
-```text
-[*] all_alert_queue dang lang nghe iot_alert_topic_exchange (pattern='alert.#'). Nhan Ctrl+C de dung.
-```
-
-Consumer này nhận cả `info`, `warning`, `critical` qua topic exchange.
-
-**Terminal 5 — Chạy producer sau khi các consumer đã sẵn sàng**
-
-```powershell
-Set-Location D:\TH
-.\.venv\Scripts\python.exe alert_producer_bai3.py
-```
-
-Producer gửi **3 cảnh báo mẫu** gồm `info`, `warning`, `critical`, in các dòng `Da gui` rồi kết thúc. Các consumer tiếp tục lắng nghe. Chạy consumer trước producer để queue được tạo và bind; ở lần chạy đầu, gửi khi chưa có queue được bind có thể làm mất message.
-
-Với một lần chạy producer mặc định, số **message mới** mong đợi là:
-
-| Consumer | Message mới nhận được |
+| Consumer | Message nhận được |
 | --- | --- |
 | Warning consumer | 1 cảnh báo `warning` |
 | Critical consumer | 1 cảnh báo `critical` |
-| All alert consumer, nếu đã bật | 3 cảnh báo: `alert.info`, `alert.warning`, `alert.critical` |
+| All alert consumer | 3 cảnh báo: `alert.info`, `alert.warning`, `alert.critical` |
 
-Bản `info` gửi vào direct exchange không tới warning consumer hoặc critical consumer.
+Cảnh báo `info` trên direct exchange không tới warning consumer hoặc critical consumer. Consumer mở rộng nhận đủ ba mức qua topic exchange. Các consumer ghi kết quả vào `logs/warning_queue.log`, `logs/critical_queue.log` và `logs/all_alert_queue.log`.
 
-**Gửi thêm một cảnh báo tùy chọn tại terminal producer**
-
-Mỗi lệnh sau gửi một cảnh báo; đặt nội dung trong dấu ngoặc kép nếu có khoảng trắng:
-
-```powershell
-.\.venv\Scripts\python.exe alert_producer_bai3.py warning "Nhiet do phong may vuot nguong warning"
-.\.venv\Scripts\python.exe alert_producer_bai3.py critical "Mat dien rack so 3 critical"
-.\.venv\Scripts\python.exe alert_producer_bai3.py info "Thiet bi sensor02 khoi dong lai info"
-```
-
-Nếu chạy cả ba lệnh này sau producer mặc định, tổng số message mới là **2 warning, 2 critical và 6 ở all alert consumer** nếu đã bật consumer mở rộng.
-
-**Đối chiếu kết quả và dừng chương trình**
-
-Các consumer ghi nối vào `logs/warning_queue.log`, `logs/critical_queue.log` và `logs/all_alert_queue.log`. Đối chiếu các dòng có thời gian của lần chạy hiện tại. Queue có thể còn message từ lần trước nên tổng số dòng hiển thị có thể lớn hơn số message mới trong bảng. Chỉ chạy một consumer cho mỗi queue khi đối chiếu.
-
-Nhấn **Ctrl+C** tại từng terminal consumer để dừng. Nếu đã khởi động broker ở Terminal 1, dừng broker sau khi kết thúc các chương trình.
-
-Dừng từng chương trình bằng **Ctrl+C**. Trên Linux/macOS, dùng `.venv/bin/python` thay cho `.\.venv\Scripts\python.exe`.
-
-## 3. Kết quả đạt được
-
-### Bài 2 — Kết quả chạy đã ghi nhận ngày 17/10/2026
-
-Theo báo cáo kiểm tra đã lưu trước khi di chuyển file, môi trường chạy là Python **3.14.0**, `pika` **1.4.4**, RabbitMQ **4.3.6** tại `localhost:5672`, vhost `/`.
-
-- Đã gửi/nhận thành công **5 message ngẫu nhiên qua RabbitMQ**. Mỗi JSON có đúng ba trường; consumer in đúng mã thiết bị và hai giá trị cảm biến do producer gửi.
-- Producer dùng `time.sleep(3)` giữa các lần gửi; lần kiểm tra không đo độ chính xác thời gian thực.
-- Đã gửi **7 payload kiểm tra qua cùng queue** để xác minh các cảnh báo và giá trị biên trong bảng dưới.
-- Đã dừng cả hai chương trình bằng Ctrl+C. Sau khi kết thúc, `sensor_data_queue` có **0 message, 0 consumer**.
-
-Các cặp `(temperature, humidity)` đã đối chiếu: `(26.6, 60.2)`, `(29.3, 49.9)`, `(23.9, 50.3)`, `(31.4, 61.8)`, `(27.7, 67.8)`. Những lần chạy sau sẽ sinh giá trị khác.
-
-| Nhiệt độ | Độ ẩm | Cảnh báo đã ghi nhận |
-| --- | --- | --- |
-| 29.5 | 62.1 | Không có |
-| 36.4 | 62.1 | `CANH BAO: Nhiet do cao` |
-| 29.5 | 38.9 | `CANH BAO: Do am thap` |
-| 36.4 | 38.9 | `CANH BAO: Nhiet do cao`, sau đó `CANH BAO: Do am thap` |
-| 35.0 | 40.0 | Không có |
-| 35.1 | 40.0 | `CANH BAO: Nhiet do cao` |
-| 35.0 | 39.9 | `CANH BAO: Do am thap` |
-
-Ví dụ đầu ra consumer với payload có cả hai điều kiện cảnh báo:
-
-```text
-Device: sensor01
-Temperature: 36.4
-Humidity: 38.9
-CANH BAO: Nhiet do cao
-CANH BAO: Do am thap
-```
-
-Hai điều kiện được kiểm tra bằng hai `if` độc lập: `temperature > 35` và `humidity < 40`. Giá trị bằng `35` hoặc `40` không gây cảnh báo tương ứng.
-
-### Bài 3 — Kết quả theo nhật ký kiểm tra đã lưu
-
-| Kịch bản | Warning consumer | Critical consumer | All alert consumer |
-| --- | --- | --- | --- |
-| Ngày 17/10/2026: producer gửi ba cảnh báo mẫu | 1 message | 1 message | 3 message |
-| Ngày 15/10/2026: ba cảnh báo mẫu, thêm một `critical` và một `info` | 1 message | 2 message | 5 message |
-
-Các log đã lưu ghi nhận cảnh báo được phân phối đúng routing key: `warning` tới `warning_queue`, `critical` tới `critical_queue`; bản `info` trên direct exchange không tới hai queue này. All alert consumer nhận đủ cả ba mức qua topic exchange. Báo cáo trước đó ghi nhận ba queue Bài 3 còn **0 message** sau khi xử lý.
-
-### Kiểm tra sau khi di chuyển file
-
-- `sensor_producer_bai2.py`, `monitor_consumer_bai2.py` và `requirements.txt` đã được chuyển ra `D:\TH`; nội dung được đối chiếu bằng SHA-256 và giữ nguyên.
-- Đã kiểm tra cú pháp hai chương trình tại đường dẫn mới bằng:
-
-```powershell
-.\.venv\Scripts\python.exe -m py_compile sensor_producer_bai2.py monitor_consumer_bai2.py
-```
-
-Kết quả: không có lỗi cú pháp. Lần chỉnh sửa này không chạy lại kết nối hoặc giao nhận RabbitMQ; các kết quả tích hợp ở trên được giữ từ báo cáo và nhật ký trước đó.
+Số lượng trên tính cho message mới của một lần chạy; queue và log có thể còn dữ liệu cũ. Khi đối chiếu, dùng thời gian của lần chạy hiện tại và chỉ mở một consumer cho mỗi queue.
