@@ -165,14 +165,16 @@ Thay `warning` bằng `info` hoặc `critical` để gửi mức tương ứng. 
 
 Các kết quả tích hợp dưới đây được ghi nhận ngày **17/10/2026**, với Python **3.14.0** và `pika` **1.4.4**. Các khối terminal trình bày lại dữ liệu đã ghi nhận theo định dạng in của mã nguồn để tham khảo; đây không phải phiên chạy mới. Thời gian và giá trị ngẫu nhiên sẽ thay đổi khi chạy lại. Log chỉ lưu cục bộ và không được Git theo dõi; bản clone mới không kèm các file log của lần chạy này.
 
+Đường dẫn trong toàn bộ phần kết quả được thống nhất về **`D:\TH1` để minh họa**, với Python tại `.\.venv\Scripts\python.exe` như hướng dẫn ở mục 3. Khi chạy trên máy của bạn, thay `D:\TH1` bằng thư mục dự án thực tế.
+
 ### Bài 1 — Gửi và nhận thành công 5 message
 
-Đã chạy consumer trước, sau đó chạy producer với đối số `5` tại `D:\TH1`. Lần kiểm tra này dùng môi trường Python có sẵn tại `D:\TH\.venv`; khi tạo `.venv` trong dự án theo mục 3, dùng các lệnh chạy ở trên.
+Đã chạy consumer trước, sau đó chạy producer với đối số `5`. Lần kiểm tra này dùng môi trường Python có sẵn trên máy; lệnh dưới đây được trình bày theo môi trường `.venv` trong thư mục dự án như mục 3.
 
-Lệnh producer đã chạy:
+Lệnh producer tương ứng:
 
 ```powershell
-PS D:\TH1> & 'D:\TH\.venv\Scripts\python.exe' -u .\producer_bai1.py 5
+PS D:\TH1> .\.venv\Scripts\python.exe -u producer_bai1.py 5
 ```
 
 Producer gửi đủ 5 message đánh số `#1`–`#5` rồi kết thúc thành công. Consumer nhận đủ 5 message qua queue `iot_lab_queue` từ **19:10:33 đến 19:10:35**. Dưới đây là phần trích message đầu tiên và cuối cùng ở Terminal 2:
@@ -191,14 +193,12 @@ Thoi gian nhan: 19:10:35
 
 Sau khi kiểm tra, đã dừng consumer bằng Ctrl+C và nhận thông báo `Da dung consumer.`; RabbitMQ vẫn chạy.
 
-Các trích đoạn Bài 2 và Bài 3 bên dưới giữ đường dẫn `D:\TH` của lần chạy trước. Các đường dẫn trong phần kết quả chỉ ghi lại vị trí trên máy thực hành; khi chạy trên máy của bạn, dùng thư mục dự án thực tế theo mục 3.
-
 ### Bài 2 — Đầu ra ở Terminal 3 (Producer)
 
 Đã gửi/nhận thành công 5 message ngẫu nhiên. Dưới đây là phần trích hai message từ lần chạy đã ghi nhận:
 
 ```text
-PS D:\TH> .\.venv\Scripts\python.exe -u sensor_producer_bai2.py
+PS D:\TH1> .\.venv\Scripts\python.exe -u sensor_producer_bai2.py
 Sensor producer dang chay. Nhan Ctrl+C de dung.
 Da gui: {"device_id": "sensor01", "temperature": 26.6, "humidity": 60.2}
 Da gui: {"device_id": "sensor01", "temperature": 29.3, "humidity": 49.9}
@@ -207,7 +207,7 @@ Da gui: {"device_id": "sensor01", "temperature": 29.3, "humidity": 49.9}
 ### Bài 2 — Đầu ra tương ứng ở Terminal 2 (Consumer)
 
 ```text
-PS D:\TH> .\.venv\Scripts\python.exe -u monitor_consumer_bai2.py
+PS D:\TH1> .\.venv\Scripts\python.exe -u monitor_consumer_bai2.py
 Monitoring consumer dang lang nghe. Nhan Ctrl+C de dung.
 Device: sensor01
 Temperature: 26.6
@@ -243,11 +243,11 @@ Humidity: 40.0
 Producer không lưu console vào file log. Với ba cảnh báo mẫu trong mã nguồn, đầu ra là:
 
 ```text
-PS D:\TH> .\.venv\Scripts\python.exe -u alert_producer_bai3.py
+PS D:\TH1> .\.venv\Scripts\python.exe -u alert_producer_bai3.py
 [x] Da gui [info] -> iot_alert_exchange: Cam bien phong may 1 gui du lieu binh thuong info
 [x] Da gui [warning] -> iot_alert_exchange: Nhiet do phong may vuot nguong warning
 [x] Da gui [critical] -> iot_alert_exchange: Cam bien kho lanh mat ket noi critical
-PS D:\TH>
+PS D:\TH1>
 ```
 
 Các đầu ra consumer dưới đây được dựng lại từ log cục bộ của lần gửi ba cảnh báo mẫu lúc **14:54:34 ngày 17/10/2026**. Các trích đoạn được giữ trong README để tham khảo sau khi bỏ log khỏi Git.
@@ -255,7 +255,7 @@ Các đầu ra consumer dưới đây được dựng lại từ log cục bộ 
 ### Bài 3 — Đầu ra ở Terminal 2 (Warning Consumer)
 
 ```text
-PS D:\TH> .\.venv\Scripts\python.exe -u warning_consumer_bai3.py
+PS D:\TH1> .\.venv\Scripts\python.exe -u warning_consumer_bai3.py
 [*] warning_queue dang lang nghe iot_alert_exchange (routing key='warning'). Nhan Ctrl+C de dung.
 [warning_queue] Da nhan: Nhiet do phong may vuot nguong warning | gui boi Vu Thanh Nguyen - B23DCCN617 | 14:54:34
     routing key: warning | thoi gian nhan: 2026-10-17 14:54:34
@@ -264,7 +264,7 @@ PS D:\TH> .\.venv\Scripts\python.exe -u warning_consumer_bai3.py
 ### Bài 3 — Đầu ra ở Terminal 3 (Critical Consumer)
 
 ```text
-PS D:\TH> .\.venv\Scripts\python.exe -u critical_consumer_bai3.py
+PS D:\TH1> .\.venv\Scripts\python.exe -u critical_consumer_bai3.py
 [*] critical_queue dang lang nghe iot_alert_exchange (routing key='critical'). Nhan Ctrl+C de dung.
 [critical_queue] Da nhan: Cam bien kho lanh mat ket noi critical | gui boi Vu Thanh Nguyen - B23DCCN617 | 14:54:34
     routing key: critical | thoi gian nhan: 2026-10-17 14:54:34
@@ -274,7 +274,7 @@ PS D:\TH> .\.venv\Scripts\python.exe -u critical_consumer_bai3.py
 ### Bài 3 — Đầu ra ở Terminal 4 (All Alert Consumer, nếu đã bật)
 
 ```text
-PS D:\TH> .\.venv\Scripts\python.exe -u all_alert_consumer_bai3.py
+PS D:\TH1> .\.venv\Scripts\python.exe -u all_alert_consumer_bai3.py
 [*] all_alert_queue dang lang nghe iot_alert_topic_exchange (pattern='alert.#'). Nhan Ctrl+C de dung.
 [all_alert_queue] Da nhan (alert.info): Cam bien phong may 1 gui du lieu binh thuong info | gui boi Vu Thanh Nguyen - B23DCCN617 | 14:54:34
 [all_alert_queue] Da nhan (alert.warning): Nhiet do phong may vuot nguong warning | gui boi Vu Thanh Nguyen - B23DCCN617 | 14:54:34
